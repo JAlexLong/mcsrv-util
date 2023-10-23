@@ -4,16 +4,22 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = fh.read()
+
+console_scripts = '''
+[console_scripts]
+mcadmin=mcadmin:cli
+'''
+
 setup(
-    name = 'mcsrv-util',
-    version = '0.0.1',
+    name = 'mcadmin',
+    version = '0.0.2',
     author = 'J. Alex Long',
-    glicense = 'GPLv3',
-    description = 'A minecraft server backup and restore tool.'
+    license = 'GPLv3',
+    description = 'A minecraft server administration tool.',
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = '<github url where the tool code will remain>',
-    py_modules = ['my_tool', 'app'],
+    url = 'https://github.com/JAlexLong/mcadmin',
+    py_modules = ['mcadmin'],
     packages = find_packages(),
     install_requires = [requirements],
     python_requires='>=3.8',
@@ -21,8 +27,5 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Operating System :: OS Independent",
     ],
-    entry_points = '''
-        [console_scripts]
-        cooltool=my_tool:cli
-    '''
+    entry_points=console_scripts,
 )
