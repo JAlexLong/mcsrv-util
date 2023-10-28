@@ -1,1 +1,0 @@
-from mcadmin import main
