@@ -2,6 +2,7 @@ import click
 import datetime
 import os
 import shutil
+import psutil
 from zipfile import ZipFile
 
 # Globals
@@ -151,6 +152,7 @@ def restore(backup_path, server_path):
     return 1
 
 
+@cli.command()
 def status():
     """Show basic stats about server
 
@@ -164,9 +166,17 @@ def status():
     - test incomming connections with curl/wget of small file
     
     """
+    for proc in psutil.process_iter(['pid', 'name']):
+        print(proc.info)
     pass
 
 
+def start(server_path):
+    pass
+
+
+def stop():
+    pass
 
 if __name__ == "__main__":
     cli()
