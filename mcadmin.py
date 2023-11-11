@@ -4,11 +4,17 @@ import os
 import shutil
 from zipfile import ZipFile
 
+# Globals
 YES = ['yes', 'y']
 NO = ['no', 'n']
+
+
+# Create click group for subcommands
+# - necessary for decorators to function properly
 @click.group()
 def cli():
     pass
+
 
 @cli.command()
 @click.option(
@@ -59,6 +65,7 @@ def backup(backup_path, server_path):
     else:
         click.echo(f"Minecraft server backup failed...")
         return 1
+
 
 @cli.command()
 @click.option(
@@ -142,6 +149,24 @@ def restore(backup_path, server_path):
             print(f"Error extracting archive {snapshot}... Try running as root.")
             return 1
     return 1
+
+
+def status():
+    """Show basic stats about server
+
+    - show if server is running
+    # pseudocode 
+    # running = ps aux | grep paper.jar
+    # if running:
+    #       running = True
+
+    - test outbound connections
+    - test incomming connections with curl/wget of small file
+    
+    """
+    pass
+
+
 
 if __name__ == "__main__":
     cli()
