@@ -2,7 +2,7 @@
 
 Minecraft Server Utility
 
-**mcadmin** is a cli application that automates several tasks such as creating server backups and restoring from backups should something go wrong. This will be expanded to creating a server from scratch, as well as being a way to handle plugins.
+**mcadmin** is a cli application that automates several tasks such as creating server backups and restoring from backups should something go wrong. This will be expanded to downloading, customizing, and administrating your server, as well as list information about your plugins.
 
 ## Installation
 
@@ -29,13 +29,15 @@ Success!
 
 ## Features
 
-mcsrv-util currently provides the following options:
+mcadmin currently provides the following options:
 
-- `backup` compresses files from `/srv/minecraft/` and stores the gzipped tarball in `/var/mcadmin/backups/`.
+- `backup` compresses files from `/srv/minecraft/` and stores the zip file in `/var/lib/mcadmin/backup/`.
+- `restore` extracts files from a backup snapshot by searching for zip files in `/var/lib/mcadmin/backup`.
+- `status` shows the running status of the server and it's corresponding pid.
 
 ## About the Author
 
-John Alexander Long II - Email: johnalexanderlong@gmail.com
+J. Alex Long - Email: johnalexanderlong@gmail.com
 
 ## License
 
