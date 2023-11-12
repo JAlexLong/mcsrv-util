@@ -12,7 +12,7 @@ mcadmin=mcadmin:cli
 
 setup(
     name = 'mcadmin',
-    version = '0.3.4',
+    version = '0.4.1',
     author = 'J. Alex Long',
     license = 'GPLv3',
     description = 'A minecraft server administration tool.',
@@ -24,7 +24,7 @@ setup(
     install_requires = [requirements],
     python_requires='>=3.8',
     classifiers=[
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.11.5",
         "Operating System :: OS Independent",
     ],
     entry_points=console_scripts,

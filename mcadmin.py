@@ -1,8 +1,8 @@
 import click
 import datetime
 import os
-import shutil
 import psutil
+import shutil
 from zipfile import ZipFile
 
 # Globals
@@ -34,19 +34,21 @@ def cli():
     default='/srv/minecraft/',
     help='path to minecraft server',
 )
-def backup(backup_path, server_path):
+def backup(backup_path: str, server_path: str) -> bool:
+    backup_success = False
     # Check if minecraft server directory exists 
     if not os.path.exists(server_path):
         click.echo(f"No minecraft server detected at '{server_path}'. Exiting...")
-        return 1
+        return backup_success
 
     if not os.path.exists(backup_path):
-        click.echo(f"No backup folder detected at '{backup_path}'. Creating...")
+        click.echo(f"No backup folder detected at '{backup_path}'. ")
         try:
             os.mkdir(backup_path)
-        except:
-            click.echo(Exception)
-            return 1
+            # os.chown(backup_path, gid=gid) # find out how to get uid of current user
+        except PermissionError:
+            click.echo("Permission denied. Try again as root...")
+            return backup_success
 
     # Create a timestamped filename for the backup
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -66,10 +68,10 @@ def backup(backup_path, server_path):
     # Check if the file exists in the backup directory
     if os.path.exists(backup_filename):
         click.echo(f"Minecraft server backup saved to '{backup_filename}'")
-        return 0
+        return True
     else:
         click.echo(f"Minecraft server backup failed...")
-        return 1
+        return False
 
 
 @cli.command()
@@ -89,15 +91,25 @@ def backup(backup_path, server_path):
     default='/srv/minecraft/',
     help='path to minecraft server',
 )
-def restore(backup_path, server_path):
+def restore(backup_path: str, server_path: str) -> bool:
+    """Restores server from a previous snapshot archive.
+
+    Args:
+        backup_path (str): the path to the backups directory
+        server_path (str): the path to the server directory
+
+    Returns:
+        bool: True if restoration is successful, False otherwise
+    """
     # Check if minecraft server directory exists 
     if not os.path.exists(server_path):
         click.echo(f"No minecraft server detected at '{server_path}'. Exiting...")
-        return 1
+        return False
+
     # Check if backup directory exists
     if not os.path.exists(backup_path):
         click.echo(f"No backup folder detected at '{backup_path}'.")
-        return 1
+        return False
 
     # show backup options, numbered
     backup_list = []
@@ -111,7 +123,7 @@ def restore(backup_path, server_path):
     selecting = True
     while selecting:
         for i, archive in enumerate(backup_list):
-            print(f"{i+1}) {archive}") 
+            click.echo(f"{i+1}) {archive}") 
         selection = input("\nWhich snapshot would you like to restore from?\nEnter 'q' to quit.\n> ")
         if selection.lower() in 'q':
             return 0
@@ -120,63 +132,89 @@ def restore(backup_path, server_path):
         try:
             selection = int(selection)
             if selection-1 in range(len(backup_list)):
-                print(f"{selection}) {backup_list[selection-1]}")
+                click.echo(f"{selection}) {backup_list[selection-1]}")
                 snapshot = backup_list[selection-1]
                 selecting = False
             else:
-                print(f"Invalid selection '{selection}'.\n")
+                click.echo(f"Invalid selection '{selection}'.\n")
         except ValueError:
-            print(f"Invalid selection '{selection}'.\n")
+            click.echo(f"Invalid selection '{selection}'.\n")
 
     # confirm selection with warning of server destruction
     confirm = input(f"BE CAREFUL! Restoring the minecraft server to a previous snapshot will PERMANENTLY DESTROY all data in '{server_path}' and replace it with the files in {snapshot}.\nContinue? (y/N): ")
     if confirm.lower() in NO or confirm == '':
-        return 0
+        return False
+    
+    restore = False
 
     # remove files in server_path
     try:
-        print(f"Deleting {server_path}...")
+        click.echo(f"Deleting {server_path}...")
         shutil.rmtree(server_path)
-        print(f"Successfully deleted {server_path}...")
-    except:
-        print(f"Error deleting {server_path}... Try running as root.")
-        return 1
+        click.echo(f"Successfully deleted all files in {server_path}...")
+    except PermissionError:
+        click.echo(f"Error deleting {server_path}... Try running as root.")
+        return restore
 
     # extract snapshot to server_path
     archive_path = os.path.join(backup_path, snapshot)
     with ZipFile(archive_path, 'r') as archive:
         try:
-            print(f"Restoring snapshot to {server_path}...")
+            click.echo(f"Restoring snapshot to {server_path}...")
             archive.extractall(server_path)
-            print(f"Successfully restored snapshot.")
-            return 0
-        except:
-            print(f"Error extracting archive {snapshot}... Try running as root.")
-            return 1
-    return 1
+            os.chown(server_path, gid=944)
+            restore = True
+        except Exception as e:
+            click.echo(f"Error extracting archive {snapshot}... Try running as root.")
+            click.echo(e)
+
+    if restore:
+        click.echo(f"Successfully restored snapshot.")
+
+    return restore
 
 
 @cli.command()
-def status():
-    """Show basic stats about server
+@click.option(
+    '-s',
+    '--server-path',
+    'server_path',
+    type=click.Path(exists=True),
+    default='/srv/minecraft/',
+    help='path to minecraft server',
+)
+def status(server_path: str) -> bool:
+    """Check running status of the server and its connection to the internet.
 
-    - show if server is running
-    # pseudocode 
-    # running = ps aux | grep paper.jar
-    # if running:
-    #       running = True
+    Args:
+        server_path (str): the path to the server
 
-    - test outbound connections
-    - test incomming connections with curl/wget of small file
-    
+    Returns:
+        bool: Returns True if both server process is running and external connections work.
     """
-    for proc in psutil.process_iter(['pid', 'name']):
-        print(proc.info)
-        pid, name = proc.info
-        if 'paper.jar' in name:
-            print(pid, name)
-    return 0
+    # Find server process and report its status
+    running = False
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'status']):
+        try:
+            pinfo = proc.as_dict()
+            if pinfo['name'] == 'java' and 'paper.jar' in pinfo['cmdline']:
+                # Print the server information
+                click.echo(f"Minecraft server process status:")
+                click.echo(f"PID: {pinfo['pid']}")
+                click.echo(f"Name: {pinfo['name']}")
+                click.echo(f"Status: {pinfo['status']}")
+                click.echo(f"Username: {pinfo['username']}")
+                running = True
+        except:
+            pass
 
+    if not running:
+        click.echo("Minecraft server process status:")
+        click.echo("PID: Not Found")
+        click.echo("Name: Not Found")
+        click.echo("Status: Not Found")
+
+    return running
 
 def start(server_path):
     pass
