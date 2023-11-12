@@ -23,7 +23,7 @@ def cli():
     '--backup-path',
     'backup_path',
     type=click.Path(),
-    default='/srv/backup/minecraft/',
+    default='/var/lib/mcadmin/backups/',
     help='path to backup folder',
 )
 @click.option(
@@ -42,7 +42,11 @@ def backup(backup_path, server_path):
 
     if not os.path.exists(backup_path):
         click.echo(f"No backup folder detected at '{backup_path}'. Creating...")
-        os.mkdir(backup_path)
+        try:
+            os.mkdir(backup_path)
+        except:
+            click.echo(Exception)
+            return 1
 
     # Create a timestamped filename for the backup
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -74,7 +78,7 @@ def backup(backup_path, server_path):
     '--backup-path',
     'backup_path',
     type=click.Path(exists=True),
-    default='/srv/backup/minecraft/',
+    default='/var/lib/mcadmin/backups/',
     help='path to backup folder',
 )
 @click.option(
@@ -168,7 +172,10 @@ def status():
     """
     for proc in psutil.process_iter(['pid', 'name']):
         print(proc.info)
-    pass
+        pid, name = proc.info
+        if 'paper.jar' in name:
+            print(pid, name)
+    return 0
 
 
 def start(server_path):

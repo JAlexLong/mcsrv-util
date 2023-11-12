@@ -12,7 +12,7 @@ mcadmin=mcadmin:cli
 
 setup(
     name = 'mcadmin',
-    version = '0.3.2',
+    version = '0.3.4',
     author = 'J. Alex Long',
     license = 'GPLv3',
     description = 'A minecraft server administration tool.',
