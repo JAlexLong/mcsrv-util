@@ -8,6 +8,8 @@ from zipfile import ZipFile
 # Globals
 YES = ['yes', 'y']
 NO = ['no', 'n']
+DEFAULT = ['']
+QUIT = ['q', 'quit']
 
 
 # Create click group for subcommands
@@ -19,7 +21,7 @@ def cli():
 
 @cli.command()
 @click.option(
-    '-b', 
+    '-b',
     '--backup-path',
     'backup_path',
     type=click.Path(),
@@ -36,7 +38,7 @@ def cli():
 )
 def backup(backup_path: str, server_path: str) -> bool:
     backup_success = False
-    # Check if minecraft server directory exists 
+    # Check if minecraft server directory exists
     if not os.path.exists(server_path):
         click.echo(f"No minecraft server detected at '{server_path}'. Exiting...")
         return backup_success
@@ -106,10 +108,27 @@ def restore(backup_path: str, server_path: str) -> bool:
         click.echo(f"No minecraft server detected at '{server_path}'. Exiting...")
         return False
 
-    # Check if backup directory exists
+    # Check if backup directory exists and make the directory if needed
     if not os.path.exists(backup_path):
-        click.echo(f"No backup folder detected at '{backup_path}'.")
-        return False
+        click.echo(f"No backup folder detected at '{backup_path}'...")
+        make_backup = input(f"Would you like to create the destination at '{backup_path}'? (Y/n): ")
+        if make_backup:
+            try:
+                click.echo(f"Creating backup folder at {backup_path}...")
+                os.mkdir(backup_path)
+                os.chown(backup_path)
+                click.echo(f"Successfully created backup folder!")
+            except Exception as e:
+                click.echo(f"ERROR: Could not create backup directory at {backup_path}. Try running as root.")
+                return False
+        else:
+            click.echo("Exiting without creating backup directory...")
+            return False
+
+    # Check if server is running currently as a process
+    if status():
+        click.echo("Server is currently running. Send the \"Stop\" command? (y/N): ")
+        # FINISH HERE
 
     # show backup options, numbered
     backup_list = []
@@ -124,9 +143,10 @@ def restore(backup_path: str, server_path: str) -> bool:
     while selecting:
         for i, archive in enumerate(backup_list):
             click.echo(f"{i+1}) {archive}") 
-        selection = input("\nWhich snapshot would you like to restore from?\nEnter 'q' to quit.\n> ")
-        if selection.lower() in 'q':
-            return 0
+        selection = input("Which snapshot would you like to restore from?\nEnter a number or 'q' to quit.\n> ")
+        if selection.lower() in QUIT:
+            # if the user choses 'q' or 'quit', return
+            return False
 
         # validate user input
         try:
@@ -142,11 +162,11 @@ def restore(backup_path: str, server_path: str) -> bool:
 
     # confirm selection with warning of server destruction
     confirm = input(f"BE CAREFUL! Restoring the minecraft server to a previous snapshot will PERMANENTLY DESTROY all data in '{server_path}' and replace it with the files in {snapshot}.\nContinue? (y/N): ")
-    if confirm.lower() in NO or confirm == '':
+    if confirm.lower() in NO or confirm in DEFAULT:
         return False
     
+    # consider our success value as False by default and prove its True-ness
     restore = False
-
     # remove files in server_path
     try:
         click.echo(f"Deleting {server_path}...")
@@ -184,13 +204,13 @@ def restore(backup_path: str, server_path: str) -> bool:
     help='path to minecraft server',
 )
 def status(server_path: str) -> bool:
-    """Check running status of the server and its connection to the internet.
+    """Check running status of the server.
 
     Args:
         server_path (str): the path to the server
 
     Returns:
-        bool: Returns True if both server process is running and external connections work.
+        bool: Returns True if both server process is running.
     """
     # Find server process and report its status
     running = False
@@ -216,12 +236,21 @@ def status(server_path: str) -> bool:
 
     return running
 
+
+@cli.command()
 def start(server_path):
-    pass
+    click.echo("`Start` command under construction. Exiting...")
 
 
+@cli.command()
 def stop():
-    pass
+    click.echo("`Stop` command under construction. Exiting...")
+
+
+@cli.command()
+def config():
+    click.echo("`config` command under construction. Exiting...")
+
 
 if __name__ == "__main__":
     cli()
