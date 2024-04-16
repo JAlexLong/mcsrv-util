@@ -1,0 +1,5 @@
+[MinecraftServer]
+name = "Test Server"
+version = "latest"
+server_path = /var/minecraft/
+backup_path = /var/minecraft/backups/

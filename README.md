@@ -31,7 +31,7 @@ Success!
 
 minecraftctl currently provides the following options:
 
-- `backup` compresses files from `/var/minecraft/` and stores the gzipped tarball in `/var/minecraft/backups/`.
+- `backup` compresses files from `/var/minecraft/` and stores the archive in `/var/minecraft/backups/`.
 
 ## About the Author
 
