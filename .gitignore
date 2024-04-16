@@ -1,2 +1,4 @@
 mcadmin.egg-info/
 __pycache__/
+.vscode/
+version_manifest.json

@@ -7,12 +7,18 @@ import shutil
 from requests import get
 from zipfile import ZipFile
 
+# Globals
+YES = ['yes', 'y']
+NO = ['no', 'n']
+
+
 class MinecraftServer:
     def __init__(self, version:str='latest'):
         if version == 'latest':
-            self.version = self._get_latest_mc_version()
+            self.version = self._update_version_manifest()
+            self.version = '1.20.4'
         else:
-            self.version = version
+            self.version = version # validate this from version_manifest.json
         self.server_path = "/var/minecraft/"
         self.backup_path = "/var/minecraft/backups"
         # if no config exists
@@ -34,19 +40,33 @@ class MinecraftServer:
         response = get(version_manifest_url)
         data = response.json()
         with open("version_manifest.json", "w") as f:
-            json.dump(data, f, ensure_ascii=False)
+            json.dump(data, f, sort_keys = True, indent = 4,
+                      ensure_ascii=False)
             #latest_release = data['latest']['release']
 
     def _download_server_jar(self):
-        try:
-            with open("version_manifest.json", "r") as version_manifest:
-                server_jar_url = version_manifest.read()
-                print(server_jar_url)
-        except:
-            print("ERROR!!1")
+        server_jar_url = ''
+        with open("version_manifest.json", "r") as version_manifest:
+            data = json.load(version_manifest)
+            versions = data['versions']
+            for version in versions:
+                if self.version == version['id']:
+                    server_jar_url = version['url']
+        if not server_jar_url:
+            return 1
+        # KEEP IN MIND THE URL IS A JSON FILE NOT THE JAR
+        response = get(server_jar_url)
+        data = response.json()
+        print(data)
+        with open("server.jar", "wb") as server_jar:
+            server_jar.write(data)
+
 
     def _start_server(self):
         self._download_server_jar()
+        pass
+
+    def _stop_server(self):
         pass
 
     def _backup(self):
@@ -147,7 +167,7 @@ class MinecraftServer:
                 print(f"Error extracting archive {snapshot}... Try running as root.")
                 return 1
 
-    def _status(self):
+    def status(self):
         """Show basic stats about server
 
         - show if server is running
@@ -161,7 +181,6 @@ class MinecraftServer:
 
         """
         pass
-
 
 
 server = MinecraftServer()

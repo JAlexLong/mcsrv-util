@@ -3,10 +3,6 @@ import datetime
 
 import MinecraftServer
 
-# Globals
-YES = ['yes', 'y']
-NO = ['no', 'n']
-
 
 # Create click group for subcommands
 # - necessary for decorators to function properly
