@@ -1,8 +1,8 @@
-# mcadmin
+# minecraftctl
 
 Minecraft Server Utility
 
-**mcadmin** is a cli application that automates several tasks such as creating server backups and restoring from backups should something go wrong. This will be expanded to creating a server from scratch, as well as being a way to handle plugins.
+**minecraftctl** is a cli application that automates several tasks such as creating server backups and restoring from backups should something go wrong. This will be expanded to creating a server from scratch, as well as being a way to handle plugins.
 
 ## Installation
 
@@ -14,7 +14,7 @@ $ source venv/bin/activate
 (venv) $
 ```
 
-2. Install mcadmin in editable mode
+2. Install minecraftctl in editable mode
 
 ```sh
 (venv) $ python -m pip install -e .
@@ -23,15 +23,15 @@ $ source venv/bin/activate
 ## Run the Project
 
 ```sh
-(venv) $ mcadmin backup
+(venv) $ minecraftctl backup
 Success!
 ```
 
 ## Features
 
-mcsrv-util currently provides the following options:
+minecraftctl currently provides the following options:
 
-- `backup` compresses files from `/srv/minecraft/` and stores the gzipped tarball in `/var/mcadmin/backups/`.
+- `backup` compresses files from `/var/minecraft/` and stores the gzipped tarball in `/var/minecraft/backups/`.
 
 ## About the Author
 

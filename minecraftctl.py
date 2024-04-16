@@ -2,6 +2,7 @@ import click
 import datetime
 import os
 import shutil
+
 from zipfile import ZipFile
 
 # Globals
@@ -22,15 +23,15 @@ def cli():
     '--backup-path',
     'backup_path',
     type=click.Path(),
-    default='/srv/backup/minecraft/',
-    help='path to backup folder',
+    default='/var/minecraft/backups/',
+    help='path to world backup folder',
 )
 @click.option(
     '-s',
     '--server-path',
     'server_path',
     type=click.Path(exists=True),
-    default='/srv/minecraft/',
+    default='/var/minecraft/',
     help='path to minecraft server',
 )
 def backup(backup_path, server_path):
@@ -73,7 +74,7 @@ def backup(backup_path, server_path):
     '--backup-path',
     'backup_path',
     type=click.Path(exists=True),
-    default='/srv/backup/minecraft/',
+    default='/var/minecraft/backups/',
     help='path to backup folder',
 )
 @click.option(
@@ -81,7 +82,7 @@ def backup(backup_path, server_path):
     '--server-path',
     'server_path',
     type=click.Path(exists=True),
-    default='/srv/minecraft/',
+    default='/var/minecraft/',
     help='path to minecraft server',
 )
 def restore(backup_path, server_path):
@@ -161,11 +162,10 @@ def status():
     #       running = True
 
     - test outbound connections
-    - test incomming connections with curl/wget of small file
+    - test incoming connections with curl/wget of small file
     
     """
     pass
-
 
 
 if __name__ == "__main__":

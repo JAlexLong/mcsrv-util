@@ -7,24 +7,24 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 console_scripts = '''
 [console_scripts]
-mcadmin=mcadmin:cli
+minecraftctl=minecraftctl:cli
 '''
 
 setup(
-    name = 'mcadmin',
-    version = '0.3.2',
+    name = 'minecraftctl',
+    version = '0.4.0',
     author = 'J. Alex Long',
     license = 'GPLv3',
     description = 'A minecraft server administration tool.',
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = 'https://github.com/JAlexLong/mcadmin',
-    py_modules = ['mcadmin'],
+    url = 'https://github.com/JAlexLong/minecraftctl',
+    py_modules = ['minecraftctl'],
     packages = find_packages(),
     install_requires = [requirements],
-    python_requires='>=3.8',
+    python_requires='>=3.12',
     classifiers=[
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.12",
         "Operating System :: OS Independent",
     ],
     entry_points=console_scripts,
