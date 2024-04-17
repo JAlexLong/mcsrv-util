@@ -1,4 +1,5 @@
-mcadmin.egg-info/
+minecraftctl.egg-info/
 __pycache__/
 .vscode/
 version_manifest.json
+server.jar
