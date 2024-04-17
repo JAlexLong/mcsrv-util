@@ -22,6 +22,8 @@ def cli():
 def test():
     server = MinecraftServer()
     print(server.version)
+    input("Press <Enter> to continue...")
+    server.start()
 
 
 @cli.command()
