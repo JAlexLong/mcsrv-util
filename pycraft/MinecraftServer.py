@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 from requests import get
 
@@ -6,7 +7,6 @@ from requests import get
 class MinecraftServer:
     def __init__(self, version:str='latest') -> None:
         self.name = "server.jar"
-        self.cache = "src/cache"
         self.version = version if version != 'latest' else self._get_latest_version()
         # if no config exists
             # gen_config()
@@ -15,6 +15,9 @@ class MinecraftServer:
         # else
             # load_config()
 
+    def load_config(self):
+        pass
+
     def _get_latest_version(self) -> str:
         """Finds the latest version of minecraft servers from Mojang
 
@@ -22,7 +25,7 @@ class MinecraftServer:
             str: The latest stable release version (i.e. '1.20.4')
         """
         self._update_version_manifest()
-        with open(self.cache+"version_manifest.json", "r") as version_manifest:
+        with open("version_manifest.json", "r") as version_manifest:
             version_data = json.load(version_manifest)
             latest_version_id = version_data['latest']['release']
         return latest_version_id
@@ -31,7 +34,7 @@ class MinecraftServer:
         version_manifest_url = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
         response = get(version_manifest_url)
         data = response.json()
-        with open(self.cache+"version_manifest.json", "w") as f:
+        with open("version_manifest.json", "w") as f:
             json.dump(data, f, sort_keys = True, indent = 4,
                       ensure_ascii=False)
 
@@ -44,7 +47,7 @@ class MinecraftServer:
             the download failed.
         """
         version_url = ''
-        with open(self.cache+"version_manifest.json", "r") as version_manifest:
+        with open("version_manifest.json", "r") as version_manifest:
             data = json.load(version_manifest)
             versions = data['versions']
             for v in versions:
@@ -70,10 +73,4 @@ class MinecraftServer:
         # check if server.jar exists in server location
         # download correct version of server otherwise
         # accept EULA
-        # run os.commands or launch bash script from python to
-        print(subprocess.run(["dir"],
-                             check=True,
-                             shell=True,
-                             capture_output=True,
-                             ).stdout.decode())
-        process = subprocess.Popen(["java", "-Xmx1024M", "-Xms1024M", "-jar", self.name, "nogui"], shell=True)
+        process = subprocess.Popen(["java", "-Xmx1024M", "-Xms1024M", "-jar", "server.jar", "nogui"])
