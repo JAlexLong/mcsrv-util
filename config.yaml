@@ -1,0 +1,7 @@
+name: testServer
+mcVersion: 1.20.4
+apiVersion: v1
+base_path: /var/minecraft/
+backup_path: /var/minecraft/backups/
+server_type: vanilla
+serverMemory: 2048
