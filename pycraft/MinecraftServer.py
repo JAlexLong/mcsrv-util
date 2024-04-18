@@ -38,7 +38,7 @@ class MinecraftServer:
             json.dump(data, f, sort_keys = True, indent = 4,
                       ensure_ascii=False)
 
-    def _download_server_jar(self) -> bool:
+    def _download_server_jar(self) -> int:
         """Find proper download link from version_manifest.json and
         download it from the official Mojang servers.
 
@@ -54,7 +54,7 @@ class MinecraftServer:
                 if self.version == v['id']:
                     version_url = v['url']
         if not version_url:
-            return False
+            return 1
 
         # get the actual download link from the version's json file
         with open("server.jar", "wb") as server_jar:
@@ -65,7 +65,7 @@ class MinecraftServer:
             server_jar_data = get(server_jar_url).content
             server_jar.write(server_jar_data)
             print("Successfully downloaded server.jar.")
-            return True
+            return 0
 
     def start(self) -> None:
         print("Starting server...")
